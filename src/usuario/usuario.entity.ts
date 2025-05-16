@@ -1,0 +1,52 @@
+import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert, BeforeUpdate, OneToMany   } from 'typeorm';
+import { Local } from '../local/local.entity';
+
+export enum TipoUsuario {
+    CONDUCTOR = 'conductor',
+    DUENO_ESTACIONAMIENTO = 'dueno_estacionamiento',
+}
+
+@Entity()
+export class Usuario {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @Column()
+  email: string;
+
+  @Column()
+  password: string;
+
+  @Column({ nullable: true })
+  placa: string;
+
+  @Column({ nullable: true })
+  dni: string;
+
+  @Column({ nullable: true })
+  ruc: string;
+
+  @Column({
+    name: 'tipo_usuario',
+    type: 'enum',
+    enum: TipoUsuario,
+    default: TipoUsuario.CONDUCTOR,
+  })
+  tipoUsuario: TipoUsuario;
+
+  @OneToMany(() => Local, (local) => local.usuario)
+  locales: Local[];
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  setTipoUsuario() {
+    if (this.ruc) {
+      this.tipoUsuario = TipoUsuario.DUENO_ESTACIONAMIENTO;
+    } else {
+      this.tipoUsuario = TipoUsuario.CONDUCTOR;
+    }
+  }
+}
