@@ -9,6 +9,19 @@ export class ReservaService {
     @InjectRepository(Reserva)
     private readonly reservaRepository: Repository<Reserva>,
   ) {}
+  
+  async findByLocal(localId: number): Promise<Reserva[]> {
+    const reservas = await this.reservaRepository.find({
+      where: { local: { id: localId } },
+      relations: ['usuario', 'local'],
+    });
+  
+    if (!reservas || reservas.length === 0) {
+      throw new NotFoundException(`No se encontraron reservas para el local con ID ${localId}`);
+    }
+  
+    return reservas;
+  }
 
   async findAll(): Promise<Reserva[]> {
     return this.reservaRepository.find({ relations: ['usuario', 'local'] });
