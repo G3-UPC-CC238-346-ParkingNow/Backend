@@ -22,7 +22,7 @@ export class UsuarioService {
     }
     return user;
   }
-
+  // Crea un nuevo usuario (Dueño y conductor)
   async create(userData: Partial<Usuario>): Promise<Usuario> {
     const newUser = this.usuarioRepository.create(userData);
     return this.usuarioRepository.save(newUser);
@@ -38,7 +38,7 @@ export class UsuarioService {
     const user = await this.findOne(id);
     await this.usuarioRepository.remove(user);
   }
-
+  // Obtiene los locales asociados a un usuario específico
   async getLocalesByUsuario(id: number): Promise<Local[]> {
     const usuario = await this.usuarioRepository.findOne({
         where: { id },
