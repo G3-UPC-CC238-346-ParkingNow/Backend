@@ -11,12 +11,12 @@ export class LocalController {
   async getAllLocales(): Promise<Local[]> {
     return this.localService.findAll();
   }
-
+  // Obtiene la informacion de un local específico
   @Get(':id')
   async getLocalById(@Param('id') id: number): Promise<Local> {
     return this.localService.findOne(id);
   }
-
+  // Crea un nuevo local
   @Post()
   async createLocal(@Body() localData: Partial<Local>): Promise<Local> {
     return this.localService.create(localData);
@@ -34,7 +34,7 @@ export class LocalController {
   async deleteLocal(@Param('id') id: number): Promise<void> {
     return this.localService.remove(id);
   }
-
+  // Obtiene el usuario asociado a un local específico (El dueño de estacionamiento)
   @Get(':id/usuario')
   async getUsuarioByLocal(@Param('id') id: number): Promise<Usuario> {
     return this.localService.getUsuarioByLocal(id);
