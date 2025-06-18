@@ -10,6 +10,11 @@ export class ReservaController {
   async getAllReservas(): Promise<Reserva[]> {
     return this.reservaService.findAll();
   }
+  
+  @Get('/local/:localId')
+  async getReservasByLocal(@Param('localId') localId: number): Promise<Reserva[]> {
+    return this.reservaService.findByLocal(localId);
+  }
 
   @Get(':id')
   async getReservaById(@Param('id') id: number): Promise<Reserva> {
