@@ -9,19 +9,19 @@ import { ReservaService } from './reserva/reserva.service';
 import { getMetadataArgsStorage } from 'typeorm';
 import { LocalController } from './local/local.controller';
 import { ReservaController } from './reserva/reserva.controller';
-
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'root',
-      database: 'parkingnow',
+      url: process.env.DATABASE_URL,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
+      synchronize: true, // para la creacion automática de tablas (solo en desarrollo)
+      ssl: {
+        rejectUnauthorized: false, // Neon requiere SSL
+      },
     }),
     TypeOrmModule.forFeature(
       getMetadataArgsStorage().tables.map((tbl) => tbl.target as any),
