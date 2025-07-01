@@ -10,6 +10,8 @@ import { getMetadataArgsStorage } from 'typeorm';
 import { LocalController } from './local/local.controller';
 import { ReservaController } from './reserva/reserva.controller';
 import { ConfigModule } from '@nestjs/config';
+import { LoginController } from './login/login.controller';
+import { LoginService } from './login/login.service';
 
 @Module({
   imports: [
@@ -27,7 +29,7 @@ import { ConfigModule } from '@nestjs/config';
       getMetadataArgsStorage().tables.map((tbl) => tbl.target as any),
     ),
   ],
-  controllers: [AppController, UsuarioController, LocalController, ReservaController],
-  providers: [AppService, UsuarioService, LocalService, ReservaService],
+  controllers: [AppController, UsuarioController, LocalController, ReservaController, LoginController],
+  providers: [AppService, UsuarioService, LocalService, ReservaService, LoginService],
 })
 export class AppModule {}
