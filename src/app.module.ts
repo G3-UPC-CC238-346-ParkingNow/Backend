@@ -17,13 +17,15 @@ import { LoginService } from './login/login.service';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
-      type: 'postgres',
-      url: process.env.DATABASE_URL,
+      type: process.env.DATABASE_TYPE as any,
+      host: process.env.DATABASE_HOST,
+      port: +(process.env.DATABASE_PORT || 5432),
+      username: process.env.DATABASE_USER,
+      password: process.env.DATABASE_PASSWORD,
+      database: process.env.DATABASE_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true, // para la creacion automática de tablas (solo en desarrollo)
-      ssl: {
-        rejectUnauthorized: false, // Neon requiere SSL
-      },
+      synchronize: true,
+      ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
     }),
     TypeOrmModule.forFeature(
       getMetadataArgsStorage().tables.map((tbl) => tbl.target as any),
