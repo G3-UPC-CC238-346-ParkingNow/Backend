@@ -1,4 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert, BeforeUpdate, OneToMany   } from 'typeorm';
+import * as bcrypt from 'bcryptjs';
 import { Local } from '../local/local.entity';
 
 export enum TipoUsuario {
@@ -39,6 +40,15 @@ export class Usuario {
 
   @OneToMany(() => Local, (local) => local.usuario)
   locales: Local[];
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async hashPassword() {
+    if (this.password && !this.password.startsWith('$2a$')) {
+      this.password = await bcrypt.hash(this.password, 10);
+    }
+    this.setTipoUsuario();
+  }
 
   @BeforeInsert()
   @BeforeUpdate()

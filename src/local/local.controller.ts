@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
 import { LocalService } from './local.service';
 import { Local } from './local.entity';
 import { Usuario } from '../usuario/usuario.entity';
+import { JwtAuthGuard } from '../login/guards/jwt-auth.guard';
 
 @Controller('local')
 export class LocalController {
@@ -16,12 +17,14 @@ export class LocalController {
   async getLocalById(@Param('id') id: number): Promise<Local> {
     return this.localService.findOne(id);
   }
-  // Crea un nuevo local
+  // Crea un nuevo local (protegido con JWT)
+  @UseGuards(JwtAuthGuard)
   @Post()
   async createLocal(@Body() localData: Partial<Local>): Promise<Local> {
     return this.localService.create(localData);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   async updateLocal(
     @Param('id') id: number,
@@ -30,6 +33,7 @@ export class LocalController {
     return this.localService.update(id, localData);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteLocal(@Param('id') id: number): Promise<void> {
     return this.localService.remove(id);

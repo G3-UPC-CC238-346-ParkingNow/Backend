@@ -1,8 +1,10 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, BadRequestException, UseGuards } from '@nestjs/common';
 import { ReservaService } from './reserva.service';
 import { Reserva } from './reserva.entity';
+import { JwtAuthGuard } from '../login/guards/jwt-auth.guard';
 
 @Controller('reserva')
+@UseGuards(JwtAuthGuard) // Protege TODAS las rutas del controlador
 export class ReservaController {
   constructor(private readonly reservaService: ReservaService) {}
 

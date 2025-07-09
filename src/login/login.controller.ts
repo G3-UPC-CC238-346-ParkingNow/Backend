@@ -1,33 +1,21 @@
-import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, BadRequestException, UseGuards, Request } from '@nestjs/common';
 import { LoginService } from './login.service';
+import { LocalAuthGuard } from './guards/local-auth.guard';
+import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 
-@Controller('login')
+@Controller('auth')
 export class LoginController {
   constructor(private readonly loginService: LoginService) {}
 
-  @Post()
-  async login(@Body() loginData: { email: string; password: string }) {
-    const { email, password } = loginData;
+  @UseGuards(LocalAuthGuard)
+  @Post('login')
+  async login(@Request() req, @Body() loginDto: LoginDto) {
+    return this.loginService.login(req.user);
+  }
 
-    if (!email || !password) {
-      throw new BadRequestException('Email y contraseña son obligatorios');
-    }
-
-    const user = await this.loginService.validateUser(email, password);
-    
-    if (!user) {
-      throw new BadRequestException('Credenciales incorrectas');
-    }
-
-    return {
-      success: true,
-      message: 'Login exitoso',
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        tipoUsuario: user.tipoUsuario,
-      },
-    };
+  @Post('register')
+  async register(@Body() registerDto: RegisterDto) {
+    return this.loginService.register(registerDto);
   }
 }

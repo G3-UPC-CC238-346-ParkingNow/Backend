@@ -9,9 +9,13 @@ import { ReservaService } from './reserva/reserva.service';
 import { getMetadataArgsStorage } from 'typeorm';
 import { LocalController } from './local/local.controller';
 import { ReservaController } from './reserva/reserva.controller';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoginController } from './login/login.controller';
 import { LoginService } from './login/login.service';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { LocalStrategy } from './login/strategies/local.strategy';
+import { JwtStrategy } from './login/strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -30,8 +34,17 @@ import { LoginService } from './login/login.service';
     TypeOrmModule.forFeature(
       getMetadataArgsStorage().tables.map((tbl) => tbl.target as any),
     ),
+    PassportModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '24h' },
+      }),
+      inject: [ConfigService],
+    }),
   ],
   controllers: [AppController, UsuarioController, LocalController, ReservaController, LoginController],
-  providers: [AppService, UsuarioService, LocalService, ReservaService, LoginService],
+  providers: [AppService, UsuarioService, LocalService, ReservaService, LoginService, LocalStrategy, JwtStrategy],
 })
 export class AppModule {}
