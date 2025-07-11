@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThan, LessThan, Between } from 'typeorm';
+import { Repository, MoreThan, LessThan, Between, In } from 'typeorm';
 import { Reserva, EstadoReserva, TipoVehiculo } from './reserva.entity';
 import { Usuario } from '../usuario/usuario.entity';
 import { Local } from '../local/local.entity';
@@ -44,15 +44,35 @@ export class ReservaService {
 
   async findActiveByUsuario(usuarioId: number): Promise<ReservaResponseDto[]> {
     const now = new Date();
+    console.log('🔍 Buscando reservas activas para usuario:', usuarioId);
+    console.log('⏰ Fecha actual:', now);
+    
+    // Primero busquemos todas las reservas del usuario sin filtros de fecha
+    const todasReservas = await this.reservaRepository.find({
+      where: { 
+        usuario: { id: usuarioId }
+      },
+      relations: ['usuario', 'local'],
+      order: { fh_inicio: 'ASC' }
+    });
+    console.log('📝 Total reservas del usuario:', todasReservas.length);
+    
+    // Ahora aplicamos los filtros
     const reservas = await this.reservaRepository.find({
       where: { 
         usuario: { id: usuarioId },
-        estado: EstadoReserva.EN_CURSO,
+        estado: In([EstadoReserva.PENDIENTE, EstadoReserva.CONFIRMADA, EstadoReserva.EN_CURSO]),
         fh_fin: MoreThan(now)
       },
       relations: ['usuario', 'local'],
       order: { fh_inicio: 'ASC' }
     });
+    
+    console.log('✅ Reservas activas encontradas:', reservas.length);
+    if (reservas.length > 0) {
+      console.log('📋 Estados encontrados:', reservas.map(r => r.estado));
+    }
+    
     return reservas.map(reserva => this.toResponseDto(reserva));
   }
 
@@ -310,7 +330,7 @@ export class ReservaService {
     const reservasConflicto = await this.reservaRepository.find({
       where: {
         local: { id: localId },
-        estado: EstadoReserva.CONFIRMADA || EstadoReserva.EN_CURSO,
+        estado: In([EstadoReserva.CONFIRMADA, EstadoReserva.EN_CURSO]),
         fh_inicio: LessThan(fh_fin),
         fh_fin: MoreThan(fh_inicio)
       }

@@ -31,7 +31,10 @@ export class ReservaController {
   // Obtener reservas activas del usuario
   @Get('activas')
   async getReservasActivas(@CurrentUser() usuario: Usuario): Promise<ReservaResponseDto[]> {
-    return this.reservaService.findActiveByUsuario(usuario.id);
+    console.log('🎯 GET /reserva/activas llamado para usuario:', usuario.id, '-', usuario.email);
+    const resultado = await this.reservaService.findActiveByUsuario(usuario.id);
+    console.log('📤 Enviando respuesta con', resultado.length, 'reservas activas');
+    return resultado;
   }
 
   // Obtener reservas de un local específico (solo para propietarios)
